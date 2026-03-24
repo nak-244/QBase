@@ -1,0 +1,101 @@
+了解しました。
+ここからは**一切カスタムなし・最新版を最短で起動する手順**だけ提示します。
+
+---
+
+# ■ 結論（これだけやればOK）
+
+👉 **Docker公式イメージをそのまま使う**
+
+---
+
+# ■ 手順（そのままコピペ）
+
+## ① 既存コンテナ削除（念のため）
+
+```bash
+docker rm -f open-webui
+```
+
+---
+
+## ② 最新版を起動
+
+```bash
+docker run -d \
+  --restart unless-stopped \
+  -p 4000:8080 \
+  -v open-webui:/app/backend/data \
+  --name open-webui \
+  ghcr.io/open-webui/open-webui:main
+```
+
+---
+
+# ■ ③ アクセス
+
+👉 [http://localhost:4000](http://localhost:4000)
+
+---
+
+# ■ これでどうなるか
+
+* 最新版OpenWebUIが起動
+* 初期セットアップ画面が出る
+* ユーザー作成
+* すぐ使える
+
+---
+
+# ■ モデル（あとから）
+
+Ollama使うなら👇だけ追加でOK
+
+```bash
+-e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
+--add-host=host.docker.internal:host-gateway \
+```
+
+---
+
+# ■ 完成版（Ollama込み）
+
+```bash
+docker run -d \
+  --restart unless-stopped \
+  -p 4000:8080 \
+  -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
+  --add-host=host.docker.internal:host-gateway \
+  -v open-webui:/app/backend/data \
+  --name open-webui \
+  ghcr.io/open-webui/open-webui:main
+```
+
+---
+
+# ■ 今回の方針
+
+👉 自作ビルドやめる
+👉 公式イメージ使う
+
+---
+
+# ■ メリット
+
+* ビルド不要
+* 依存問題ゼロ
+* 即起動
+* 安定
+
+---
+
+# ■ 結論
+
+👉 今やるべき最短ルートは
+
+**「公式イメージを4000ポートで起動」**
+
+---
+
+これでまず
+👉 **確実に動く状態を作るのが正解です。**
