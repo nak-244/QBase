@@ -148,7 +148,7 @@ cd /mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev
 ## ■ ビルド（今後これ固定）
 
 ```bash
-docker buildx build --load -t qbase-dev:v0.8.9.1 .
+docker buildx build --no-cache --load -t --build-arg USE_SLIM=false qbase-dev:v0.8.9.1 .
 ```
 
 ---
