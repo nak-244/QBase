@@ -1,12 +1,6 @@
-qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev$ docker logs open-webui-dev
+$ docker logs open-webui-dev
 Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
 Generating WEBUI_SECRET_KEY
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
 Loading WEBUI_SECRET_KEY from .webui_secret_key
 /usr/local/bin/python3: No module named uvicorn
 Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
