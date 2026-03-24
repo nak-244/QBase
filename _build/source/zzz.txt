@@ -1,0 +1,6 @@
+qbi_tokyo@QBITokyoServer:~/qbase$ sudo systemctl enable ollama
+[sudo] password for qbi_tokyo:
+Created symlink /etc/systemd/system/default.target.wants/ollama.service → /etc/systemd/system/ollama.service.
+qbi_tokyo@QBITokyoServer:~/qbase$ sudo systemctl restart ollama
+qbi_tokyo@QBITokyoServer:~/qbase$ ss -lntp | grep 11434
+LISTEN 0      4096        127.0.0.1:11434      0.0.0.0:*
