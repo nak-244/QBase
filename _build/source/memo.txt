@@ -1,4 +1,9 @@
-qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev$ cat Dockerfile | grep uv
-RUN pip3 install --no-cache-dir uv && \
-qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev$ cat backend/requirements.txt | grep uvicorn
-uvicorn[standard]==0.41.0
+Dockerfile:148
+--------------------
+ 146 |
+ 147 |     # ★最重要：requirementsは単独で確実に入れる
+ 148 | >>> RUN pip3 install --no-cache-dir -r requirements.txt
+ 149 |
+ 150 |     # モデル系（USE_SLIM分岐）
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c pip3 install --no-cache-dir -r requirements.txt" did not complete successfully: exit code: 1
