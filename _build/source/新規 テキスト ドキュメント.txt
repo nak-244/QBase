@@ -1,26 +1,162 @@
-qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev$ docker build -t qbase-dev:v0.8.9.1 .
-DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
-            Install the buildx component to build images with BuildKit:
-            https://docs.docker.com/go/buildx/
+了解しました。ここは中途半端に直すより、**完全にリセットして buildx前提で再構築**が正解です。
+結論から言うと、やることは3段階だけです👇
 
-Sending build context to Docker daemon  106.6MB
-Step 1/62 : ARG USE_CUDA=false
-Step 2/62 : ARG USE_OLLAMA=false
-Step 3/62 : ARG USE_SLIM=false
-Step 4/62 : ARG USE_PERMISSION_HARDENING=false
-Step 5/62 : ARG USE_CUDA_VER=cu128
-Step 6/62 : ARG USE_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-Step 7/62 : ARG USE_RERANKING_MODEL=""
-Step 8/62 : ARG USE_AUXILIARY_EMBEDDING_MODEL=TaylorAI/bge-micro-v2
-Step 9/62 : ARG USE_TIKTOKEN_ENCODING_NAME="cl100k_base"
-Step 10/62 : ARG BUILD_HASH=dev-build
-Step 11/62 : ARG UID=0
-Step 12/62 : ARG GID=0
-Step 13/62 : FROM --platform=$BUILDPLATFORM node:22-alpine3.20 AS build
-failed to parse platform : "" is an invalid OS component of "": OSAndVersion specifier component must match "^([A-Za-z0-9_-]+)(?:\\(([A-Za-z0-9_.-]*)\\))?$": invalid argument
-qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev$ docker rm -f open-webui-dev
-Error response from daemon: No such container: open-webui-dev
-qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev$ docker run -d \
+👉 **① Dockerを公式版に入れ直す → ② buildx有効化 → ③ QBase開発環境構築**
+
+---
+
+# ■ 全体設計（今回のゴール）
+
+* Docker：公式版（buildx標準搭載）
+* build：buildx固定
+* Ollama：systemd常駐
+* OpenWebUI：ローカル接続
+
+👉 **今後一切迷わない構成**
+
+---
+
+# ■ ① Docker完全リセット（WSL）
+
+まず今のDocker（docker.io）を削除します。
+
+```bash
+sudo apt remove -y docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc
+```
+
+```bash
+sudo rm -rf /var/lib/docker
+```
+
+---
+
+# ■ ② Docker公式版インストール
+
+```bash
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg
+```
+
+```bash
+sudo install -m 0755 -d /etc/apt/keyrings
+```
+
+```bash
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+```
+
+```bash
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo $VERSION_CODENAME) stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+```bash
+sudo apt update
+```
+
+```bash
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+---
+
+# ■ ③ Docker起動
+
+```bash
+sudo service docker start
+```
+
+---
+
+# ■ ④ 権限付与（重要）
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+👉 一度ログアウト or `exit` → `wsl` 再ログイン
+
+---
+
+# ■ ⑤ buildx確認
+
+```bash
+docker buildx version
+```
+
+👉 出ればOK
+
+---
+
+# ■ ⑥ builder作成（これが本命）
+
+```bash
+docker buildx create --name qbase-builder --use
+```
+
+---
+
+```bash
+docker buildx inspect --bootstrap
+```
+
+---
+
+```bash
+docker buildx ls
+```
+
+---
+
+## ■ 正常状態
+
+```text
+qbase-builder * docker-container
+```
+
+👉 これで完成
+
+---
+
+# ■ ⑦ Ollama確認（既存そのまま）
+
+```bash
+ss -lntp | grep 11434
+```
+
+👉 `*:11434` ならOK
+
+---
+
+# ■ ⑧ 開発フロー（buildx版）
+
+## ■ 移動
+
+```bash
+cd /mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev
+```
+
+---
+
+## ■ ビルド（今後これ固定）
+
+```bash
+docker buildx build --load -t qbase-dev:v0.8.9.1 .
+```
+
+---
+
+## ■ 起動
+
+```bash
+docker rm -f open-webui-dev
+```
+
+```bash
+docker run -d \
   --restart unless-stopped \
   -p 4000:8080 \
   -e WEBUI_NAME="QBase-Dev" \
@@ -29,14 +165,44 @@ qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev
   -e ENABLE_OLLAMA_EMBEDDINGS=true \
   -e EMBEDDING_ENGINE=ollama \
   -e EMBEDDING_MODEL=mxbai-embed-large \
-  -e USE_EMBEDDING_MODEL_DOCKER="" \
-  -e RAG_EMBEDDING_MODEL="" \
   -e TZ=Asia/Tokyo \
   --add-host=host.docker.internal:host-gateway \
   -v open-webui-dev:/app/backend/data \
   --name open-webui-dev \
   qbase-dev:v0.8.9.1
-Unable to find image 'qbase-dev:v0.8.9.1' locally
-docker: Error response from daemon: pull access denied for qbase-dev, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+```
 
-Run 'docker run --help' for more information
+---
+
+## ■ 確認
+
+👉 [http://localhost:4000](http://localhost:4000)
+
+---
+
+# ■ この構成のメリット
+
+* buildx前提Dockerfile完全対応
+* npm build安定
+* 将来CI/CDそのまま流用可能
+* dev / prod分離しやすい
+
+---
+
+# ■ 結論
+
+👉 今回やるべきは
+
+**「docker.io環境を捨てて、Docker公式 + buildx環境に乗り換える」**
+
+---
+
+これで
+
+👉 **OpenWebUI・QBase運用の“正解構成”になります。**
+
+---
+
+必要なら次は
+👉 **dev / prod完全分離（事故ゼロ設計）**
+まで一気に整理できます。
