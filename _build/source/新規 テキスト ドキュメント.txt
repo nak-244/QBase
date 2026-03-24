@@ -65,6 +65,10 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 
 # ■ ③ Docker起動
 
+
+ここから
+
+
 ```bash
 sudo service docker start
 ```
