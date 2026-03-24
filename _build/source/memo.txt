@@ -1,101 +1,168 @@
-了解しました。
-ここからは**一切カスタムなし・最新版を最短で起動する手順**だけ提示します。
+結論から言います。
+**今の状態は「不要なものが溜まっている可能性が高い」です。整理はやった方がいいです。**
+
+ただし重要なのは👇
+👉 **闇雲に消すと今動いている環境も壊れます**
+
+なので、安全に整理します。
 
 ---
 
-# ■ 結論（これだけやればOK）
+# ■ まず前提（ここだけ守る）
 
-👉 **Docker公式イメージをそのまま使う**
-
----
-
-# ■ 手順（そのままコピペ）
-
-## ① 既存コンテナ削除（念のため）
+👉 今動いているコンテナ
 
 ```bash
-docker rm -f open-webui
+open-webui（4000で動いてるやつ）
+```
+
+👉 これは絶対消さない
+
+---
+
+# ■ ステップ①：現状確認
+
+```bash
+docker ps -a
+```
+
+👉 見るポイント
+
+* open-webui → 残す
+* open-webui-dev → もう不要（今回の失敗環境）
+
+---
+
+# ■ ステップ②：不要コンテナ削除
+
+```bash
+docker rm -f open-webui-dev
+```
+
+👉 他にも「Exited」状態のものは全部消してOK
+
+---
+
+# ■ ステップ③：不要イメージ削除
+
+一覧確認👇
+
+```bash
+docker images
 ```
 
 ---
 
-## ② 最新版を起動
+👉 よくある不要
+
+* qbase-dev
+* <none>（ダングリング）
+* 古いopen-webuiビルド
+
+---
+
+削除👇
 
 ```bash
-docker run -d \
-  --restart unless-stopped \
-  -p 4000:8080 \
-  -v open-webui:/app/backend/data \
-  --name open-webui \
-  ghcr.io/open-webui/open-webui:main
+docker rmi qbase-dev:v0.8.9.1
 ```
 
 ---
 
-# ■ ③ アクセス
-
-👉 [http://localhost:4000](http://localhost:4000)
-
----
-
-# ■ これでどうなるか
-
-* 最新版OpenWebUIが起動
-* 初期セットアップ画面が出る
-* ユーザー作成
-* すぐ使える
-
----
-
-# ■ モデル（あとから）
-
-Ollama使うなら👇だけ追加でOK
+👉 一括で不要削除（おすすめ）
 
 ```bash
--e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
---add-host=host.docker.internal:host-gateway \
+docker image prune -a
+```
+
+※確認出るので安心
+
+---
+
+# ■ ステップ④：不要ボリューム（慎重）
+
+```bash
+docker volume ls
 ```
 
 ---
 
-# ■ 完成版（Ollama込み）
+👉 残すもの
+
+* open-webui ← 重要（データ入ってる）
+
+---
+
+👉 消していい例
+
+* open-webui-dev
+* 使ってないやつ
+
+---
+
+削除👇
 
 ```bash
-docker run -d \
-  --restart unless-stopped \
-  -p 4000:8080 \
-  -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
-  --add-host=host.docker.internal:host-gateway \
-  -v open-webui:/app/backend/data \
-  --name open-webui \
-  ghcr.io/open-webui/open-webui:main
+docker volume rm open-webui-dev
 ```
 
 ---
 
-# ■ 今回の方針
+# ■ ステップ⑤：最強クリーニング（安全版）
 
-👉 自作ビルドやめる
-👉 公式イメージ使う
+```bash
+docker system prune -a
+```
 
 ---
 
-# ■ メリット
+👉 これで消える
 
-* ビルド不要
-* 依存問題ゼロ
-* 即起動
-* 安定
+* 使ってないコンテナ
+* 使ってないイメージ
+* キャッシュ
+
+---
+
+👉 消えない
+
+* 稼働中コンテナ
+* 使ってるボリューム
+
+---
+
+# ■ ここまでやると
+
+👉 環境はこうなる
+
+* open-webui（最新）だけ残る
+* 無駄なビルド残骸ゼロ
+* ディスク軽くなる
+
+---
+
+# ■ 補足（重要）
+
+今回あなたは👇
+
+* buildx
+* カスタムビルド
+* 失敗イメージ複数
+
+👉 **かなりゴミが溜まりやすい状態**
 
 ---
 
 # ■ 結論
 
-👉 今やるべき最短ルートは
+👉 やるべきこと
 
-**「公式イメージを4000ポートで起動」**
+1. open-webui以外のコンテナ削除
+2. 不要イメージ削除
+3. system prune実行
 
 ---
 
-これでまず
-👉 **確実に動く状態を作るのが正解です。**
+👉 これで
+
+**クリーンな状態に戻せます。**
