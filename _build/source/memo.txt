@@ -24,15 +24,3 @@ Loading WEBUI_SECRET_KEY from .webui_secret_key
 Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
 Loading WEBUI_SECRET_KEY from .webui_secret_key
 /usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
