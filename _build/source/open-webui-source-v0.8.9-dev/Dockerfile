@@ -145,7 +145,8 @@ RUN if [ "$USE_CUDA" = "true" ]; then \
     fi
 
 # ★最重要：requirementsは単独で確実に入れる
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --upgrade pip setuptools wheel
+RUN pip3 install --no-cache-dir --prefer-binary -r requirements.txt
 
 # モデル系（USE_SLIM分岐）
 RUN if [ "$USE_SLIM" != "true" ]; then \
