@@ -1,38 +1,4 @@
-qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev$ docker run -d \
-  --restart unless-stopped \
-  -p 4000:8080 \
-  -e WEBUI_NAME="QBase-Dev" \
-  -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
-  -e WEBUI_DISABLE_VERSION_CHECK=true \
-  -e ENABLE_OLLAMA_EMBEDDINGS=true \
-  -e EMBEDDING_ENGINE=ollama \
-  -e EMBEDDING_MODEL=mxbai-embed-large \
-  -e TZ=Asia/Tokyo \
-  --add-host=host.docker.internal:host-gateway \
-  -v open-webui-dev:/app/backend/data \
-  --name open-webui-dev \
-  qbase-dev:v0.8.9.1
-4184961b72cb5bdc0af3798a89bc52c9211b248b5d59c4c692b45a4cf013665c
-qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev$ docker logs open-webui-dev
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Generating WEBUI_SECRET_KEY
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
-Loading WEBUI_SECRET_KEY from file, not provided as an environment variable.
-Loading WEBUI_SECRET_KEY from .webui_secret_key
-/usr/local/bin/python3: No module named uvicorn
+qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev$ cat Dockerfile | grep uv
+RUN pip3 install --no-cache-dir uv && \
+qbi_tokyo@QBITokyoServer:/mnt/d/QBase/_build/source/open-webui-source-v0.8.9-dev$ cat backend/requirements.txt | grep uvicorn
+uvicorn[standard]==0.41.0
