@@ -1,0 +1,56 @@
+■ファビコン変更等軽微変更時
+① ディレクトリ移動
+cd Documents/GitHub/QBworld/14_QBase/open-webui-source-v088
+
+② ★ビルド
+docker buildx build --load -t qbase .
+
+③ コンテナ停止・削除
+docker rm -f open-webui
+
+④ 再起動
+docker run -d \
+  --restart unless-stopped \
+  -p 3000:8080 \
+  -e WEBUI_NAME="QBase" \
+  -e OLLAMA_BASE_URL=http://172.28.109.111:11434 \
+  -e WEBUI_DISABLE_VERSION_CHECK=true \
+  -e ENABLE_OLLAMA_EMBEDDINGS=true \
+  -e EMBEDDING_ENGINE=ollama \
+  -e EMBEDDING_MODEL=mxbai-embed-large \
+  -e USE_EMBEDDING_MODEL_DOCKER="" \
+  -e RAG_EMBEDDING_MODEL="" \
+  -e TZ=Asia/Tokyo \
+  -v open-webui:/app/backend/data \
+  --name open-webui \
+  qbase
+
+■バージョンアップ時
+① ディレクトリ移動（従来通り）
+cd Documents/GitHub/QBworld/14_QBase/open-webui-source-v088
+
+② ビルド
+docker buildx build --load -t qbase .
+
+※何かエラーが起きた時は下記でクリーンビルド。
+docker buildx build --load --no-cache -t qbase .
+
+③ コンテナ停止・削除
+docker rm -f open-webui
+
+④ 再起動（従来通り）
+docker run -d \
+  --restart unless-stopped \
+  -p 3000:8080 \
+  -e WEBUI_NAME="QBase" \
+  -e OLLAMA_BASE_URL=http://172.28.109.111:11434 \
+  -e WEBUI_DISABLE_VERSION_CHECK=true \
+  -e ENABLE_OLLAMA_EMBEDDINGS=true \
+  -e EMBEDDING_ENGINE=ollama \
+  -e EMBEDDING_MODEL=mxbai-embed-large \
+  -e USE_EMBEDDING_MODEL_DOCKER="" \
+  -e RAG_EMBEDDING_MODEL="" \
+  -e TZ=Asia/Tokyo \
+  -v open-webui:/app/backend/data \
+  --name open-webui \
+  qbase

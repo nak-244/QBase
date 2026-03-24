@@ -1,0 +1,59 @@
+# ①公開環境：イメージ作成
+公開用ソースへ移動：
+cd Documents/GitHub/QBworld/14_QBase/_build/sauce/open-webui-source-v0.8.9-prod
+
+ビルド：
+docker buildx build --load -t qbase-prod:v0.8.9.1 .
+
+# 通常ビルドで不具合が解消しない時
+docker buildx build --load --no-cache -t qbase-prod:v0.8.9.1 .
+
+# ② 公開環境 起動
+docker rm -f open-webui
+
+docker run -d \
+  --restart unless-stopped \
+  -p 3000:8080 \
+  -e WEBUI_NAME="QBase" \
+  -e OLLAMA_BASE_URL=http://172.28.109.111:11434 \
+  -e WEBUI_DISABLE_VERSION_CHECK=true \
+  -e ENABLE_OLLAMA_EMBEDDINGS=true \
+  -e EMBEDDING_ENGINE=ollama \
+  -e EMBEDDING_MODEL=mxbai-embed-large \
+  -e USE_EMBEDDING_MODEL_DOCKER="" \
+  -e RAG_EMBEDDING_MODEL="" \
+  -e TZ=Asia/Tokyo \
+  -v open-webui:/app/backend/data \
+  --name open-webui \
+  qbase-prod:v0.8.9.1
+
+----------------------------------------------
+
+# ③ 開発環境：イメージ作成
+開発用ソースへ移動：
+cd Documents/GitHub/QBworld/14_QBase/_build/sauce/open-webui-source-v0.8.9-dev
+
+ビルド：
+docker buildx build --load -t qbase-dev:v0.8.9.1 .
+
+# 通常ビルドで不具合が解消しない時
+docker buildx build --load --no-cache -t qbase-dev:v0.8.9.1 .
+
+# ④ 開発環境 起動
+docker rm -f open-webui-dev
+
+docker run -d \
+  --restart unless-stopped \
+  -p 4000:8080 \
+  -e WEBUI_NAME="QBase-Dev" \
+  -e OLLAMA_BASE_URL=http://172.28.109.111:11434 \
+  -e WEBUI_DISABLE_VERSION_CHECK=true \
+  -e ENABLE_OLLAMA_EMBEDDINGS=true \
+  -e EMBEDDING_ENGINE=ollama \
+  -e EMBEDDING_MODEL=mxbai-embed-large \
+  -e USE_EMBEDDING_MODEL_DOCKER="" \
+  -e RAG_EMBEDDING_MODEL="" \
+  -e TZ=Asia/Tokyo \
+  -v open-webui-dev:/app/backend/data \
+  --name open-webui-dev \
+  qbase-dev:v0.8.9.1
