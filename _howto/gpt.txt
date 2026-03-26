@@ -1,0 +1,41 @@
+WSL(Ubuntu)上でDocker + Ollama + OpenWebUIの環境を構築済みです。
+
+■ 現在の構成
+- WSL上でDocker稼働（docker-ce + buildx導入済み）
+- Ollamaはsystemdで常駐（OLLAMA_HOST=0.0.0.0）
+- OpenWebUIはDockerで起動
+  - 本番：localhost:4000（公式イメージ）
+  - 開発：localhost:4001（自前ビルド）
+
+■ 目的
+下記の流れで、ローカルのソースからビルドを行うことと、本番用、開発用で切り分けて対応できているかを確認してほしい。
+
+■ ビルド時
+①
+docker buildx build --load -t qbase-dev .
+エラー発生時はこちら。
+docker buildx build --no-cache --load -t qbase-dev .
+
+②
+docker rm -f open-webui-dev
+
+③
+docker run -d \
+  -p 4001:8080 \
+  -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
+  --add-host=host.docker.internal:host-gateway \
+  --name open-webui-dev \
+  qbase-dev
+
+# 本番用
+公開用ソースへ移動：
+```
+cd /mnt/d/QBase/_build/source/open-webui-source-v0.8.10-prod
+```
+
+ビルド：
+```
+docker buildx build --load -t qbase-prod:v0.8.10 .
+```
+
+公開環境起動：
