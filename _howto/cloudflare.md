@@ -6,7 +6,7 @@ https://dev.example.co.jp
         ↓
 Cloudflare Tunnel
         ↓
-東京PC localhost:4000（QBase Dev）
+東京PC localhost:4000
 ```
 
 ---
@@ -179,4 +179,3 @@ Cloudflare Zero Trust → Access
 | 常設運用    | 可  |
 
 ---
-
