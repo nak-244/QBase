@@ -2,7 +2,7 @@
 ## ■ 全体像
 
 ```text
-https://dev.example.co.jp
+qbase.qbiworld.com
         ↓
 Cloudflare Tunnel
         ↓
@@ -13,7 +13,7 @@ Cloudflare Tunnel
 
 ## ■ 前提
 
-* サブドメイン：例）`dev.example.co.jp`
+* サブドメイン：例）`qbase.qbiworld.com`
 * 東京PCで開発環境稼働：`http://localhost:4000`
 
 ---
@@ -32,7 +32,7 @@ Cloudflare Tunnel
 2. 入力：
 
    ```
-   dev.example.co.jp
+   qbase.qbiworld.com
    ```
 3. Freeプラン選択
 
@@ -127,7 +127,7 @@ tunnel: qbase-dev
 credentials-file: C:\Users\ユーザー名\.cloudflared\xxxxx.json
 
 ingress:
-  - hostname: dev.example.co.jp
+  - hostname: qbase.qbiworld.com
     service: http://localhost:4000
   - service: http_status:404
 ```
@@ -147,7 +147,7 @@ cloudflared tunnel run qbase-dev
 大阪からアクセス：
 
 ```
-https://dev.example.co.jp
+https://qbase.qbiworld.com
 ```
 
 ✔ HTTPS
