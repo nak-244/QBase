@@ -32,4 +32,6 @@ GMOクラウド　アカウントマネージャーで下記を追加
     qbiworld.com ドメイン側：
     qbase   CNAME   9ceac628-dcb0-44b0-ad63-016abade9feb.cfargotunnel.com
 
-数分待って、
+※ GMOクラウドの仕様上、マルチドメインで対応するのが難しいらしい。
+　マルチドメイン（qbase.qbiworld.com）を解約し、qbiworld.comで上記を設定。
+　3/28以降で解約となるため、3/30に下記を行い確認。
