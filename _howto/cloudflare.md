@@ -2,7 +2,7 @@
 ## ■ 全体像
 
 ```text
-https://dev.example.co.jp
+https://qbase.qbiworld.com
         ↓
 Cloudflare Tunnel
         ↓
