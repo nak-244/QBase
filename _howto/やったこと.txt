@@ -33,3 +33,7 @@ GMOクラウド　アカウントマネージャーで下記を追加
     qbase   CNAME   9ceac628-dcb0-44b0-ad63-016abade9feb.cfargotunnel.com
 
 数分待って、
+
+
+lloyd.ns.cloudflare.com
+olga.ns.cloudflare.com
