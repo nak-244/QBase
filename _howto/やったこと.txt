@@ -46,3 +46,8 @@ olga.ns.cloudflare.com
 
 lloyd.ns.cloudflare.com
 olga.ns.cloudflare.com
+
+
+ns.namedserver.net
+ns2.namedserver.net
+（変更前）
