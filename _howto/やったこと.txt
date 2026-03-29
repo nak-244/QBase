@@ -45,3 +45,10 @@ GMOアカウントマネージャでDNS変更
 （変更後）
     lloyd.ns.cloudflare.com
     olga.ns.cloudflare.com
+
+
+nslookup -type=ns qbiworld.com
+で確認。
+これになればOK👇
+lloyd.ns.cloudflare.com
+olga.ns.cloudflare.com
