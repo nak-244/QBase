@@ -43,3 +43,6 @@ olga.ns.cloudflare.com
 　マルチドメイン（qbase.qbiworld.com）を解約し、qbiworld.comで上記を設定。
 　3/28以降で解約となるため、3/30に下記を行い確認。
 >>>>>>> f36118b9bb83ab54e16dbd197367cba4711374bc
+
+lloyd.ns.cloudflare.com
+olga.ns.cloudflare.com
