@@ -1,0 +1,3 @@
+OpenWebUIを運用中。
+GPU（NVIDIA）搭載のPCですが、うまく活用しきれていない気がする。
+例えば、gemma3:4b で、２
