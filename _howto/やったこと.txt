@@ -46,9 +46,8 @@ GMOアカウントマネージャでDNS変更
     lloyd.ns.cloudflare.com
     olga.ns.cloudflare.com
 
-
-nslookup -type=ns qbiworld.com
-で確認。
-これになればOK👇
-lloyd.ns.cloudflare.com
-olga.ns.cloudflare.com
+➡ 切り替わったら、表示されなくなった。
+（変更前）
+    ns.namedserver.net
+    ns2.namedserver.net
+これに戻した。
