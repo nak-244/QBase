@@ -1,181 +1,112 @@
+## ■ Cloudflare Tunnel構築メモ（完成版）
 
-## ■ 全体像
+### ■ 目的
+
+ローカル環境（localhost:4000）を
+外部URL（qbase.qbiworld.com）で公開する
+
+---
+
+## ■ 構成
 
 ```text
-https://qbase.qbiworld.com
-        ↓
-Cloudflare Tunnel
-        ↓
-東京PC localhost:4000
+qbiworld.com           → 既存サーバー（GMO）
+www.qbiworld.com       → 既存サーバー
+
+qbase.qbiworld.com     → Cloudflare Tunnel
+                       → localhost:4000（OpenWebUI）
 ```
 
 ---
 
-## ■ 前提
+## ■ DNS設定（GMO側）
 
-* サブドメイン：例）`dev.example.co.jp`
-* 東京PCで開発環境稼働：`http://localhost:4000`
+* ネームサーバー：変更なし（GMOのまま）
+* 追加設定：
 
----
-
-## ■ 手順
-
-### STEP1：Cloudflare にログイン
-
-[https://dash.cloudflare.com/](https://dash.cloudflare.com/)
-
----
-
-### STEP2：サブドメインを“サイト追加”
-
-1. 「Add a site」
-2. 入力：
-
-   ```
-   dev.example.co.jp
-   ```
-3. Freeプラン選択
-
----
-
-### STEP3：ネームサーバー確認
-
-表示される：
-
-```
-xxxx.ns.cloudflare.com
-yyyy.ns.cloudflare.com
-```
-
-👉 これは「サブドメイン専用ネームサーバー」
-
----
-
-### STEP4：iCLUSTA+ 側で委任設定（重要）
-
-DNS設定で **NSレコード追加**
-
-| 種別 | ホスト名 | 値                      |
-| -- | ---- | ---------------------- |
-| NS | dev  | xxxx.ns.cloudflare.com |
-| NS | dev  | yyyy.ns.cloudflare.com |
-
-これで：
-
-```
-dev.example.co.jp のDNS管理 → Cloudflareへ移譲
-```
-
-※ 本体ドメインは無関係
-
----
-
-### STEP5：Cloudflare側 DNS設定
-
-Cloudflare管理画面
-→ DNS → Records → 追加
-
-| Type  | Name | Target                 |
-| ----- | ---- | ---------------------- |
-| CNAME | dev  | xxxxx.cfargotunnel.com |
-
-（トンネル作成後に設定）
-
----
-
-### STEP6：東京PCに cloudflared 導入
-
-公式DL：
-[https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/)
-
-Windows版インストール
-
----
-
-### STEP7：Cloudflareログイン（東京PC）
-
-PowerShell：
-
-```powershell
-cloudflared tunnel login
-```
-
-ブラウザが開く → 認証
-
----
-
-### STEP8：トンネル作成
-
-```powershell
-cloudflared tunnel create qbase-dev
+```text
+qbase → CNAME → <TunnelのUUID>.cfargotunnel.com
 ```
 
 ---
 
-### STEP9：設定ファイル作成
+## ■ Cloudflare設定
 
-作成：
+* Tunnel作成済
+* route dns 実行済
 
+```bash
+cloudflared tunnel create qbase-tunnel
+cloudflared tunnel route dns qbase-tunnel qbase.qbiworld.com
 ```
-C:\Users\ユーザー名\.cloudflared\config.yml
-```
 
-内容：
+---
+
+## ■ config.yml
 
 ```yaml
-tunnel: qbase-dev
-credentials-file: C:\Users\ユーザー名\.cloudflared\xxxxx.json
+tunnel: qbase-tunnel
+credentials-file: /home/qpc/.cloudflared/<UUID>.json
 
 ingress:
-  - hostname: dev.example.co.jp
+  - hostname: qbase.qbiworld.com
     service: http://localhost:4000
   - service: http_status:404
 ```
 
 ---
 
-### STEP10：トンネル起動
+## ■ 起動方法
 
-```powershell
-cloudflared tunnel run qbase-dev
+```bash
+cloudflared tunnel run qbase-tunnel
 ```
 
 ---
 
-## ■ 完了
+## ■ 動作仕様（重要）
 
-大阪からアクセス：
-
-```
-https://dev.example.co.jp
-```
-
-✔ HTTPS
-✔ 固定URL
-✔ 警告ページなし
-✔ 高速
-✔ 無料
+| 項目             | 状態         |
+| -------------- | ---------- |
+| cloudflared起動中 | qbase表示される |
+| cloudflared停止  | qbase停止    |
+| メインドメイン        | 影響なし       |
 
 ---
 
-## ■ 任意：アクセス制限（推奨）
+## ■ メール設定
 
-Cloudflare Zero Trust → Access
-
-* Googleログイン必須
-* 社内メール限定
-* IP制限
+* すべてDNSのみ（グレー）
+* Cloudflareプロキシは使用しない
 
 ---
 
-## ■ よくある確認
+## ■ 完成状態
 
-| 項目      | 状態 |
-| ------- | -- |
-| 本体サイト影響 | なし |
-| メール影響   | なし |
-| SEO影響   | なし |
-| URL固定   | 可  |
-| 常設運用    | 可  |
+* [https://www.qbiworld.com](https://www.qbiworld.com) → OK
+* [https://qbase.qbiworld.com](https://qbase.qbiworld.com) → OK（条件付き）
+
+---
+
+## ■ 注意点（重要）
+
+* cloudflaredは常駐必須
+* PC停止でqbase停止
+* Cloudflare機能（WAF等）は未使用構成
+
+---
+
+## ■ 今後の改善候補
+
+* systemdで常駐化
+* 別サーバーに移行
+* Cloudflare完全移管
+
+---
+
+# ■ 結論
+
+👉 **構成は完成済み（実運用可能）**
+👉 **次フェーズは「運用最適化」**
 
 ---
