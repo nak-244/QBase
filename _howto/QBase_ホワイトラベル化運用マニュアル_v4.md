@@ -165,4 +165,43 @@ ddgs==9.11.4
 ```
 9.11.2 → 9.11.4に修正。
 
+
+## 4-9. スレッドタイトル生成プロンプト変更
+backend/open_webui/config.py
+1710行目あたり
+DEFAULT_TITLE_GENERATION_PROMPT_TEMPLATE = """### Task:
+ここをブロックごと差し替え
+```
+DEFAULT_TITLE_GENERATION_PROMPT_TEMPLATE = """### Task:
+Generate a concise short title with an emoji summarizing the chat history.
+
+### Guidelines:
+- The title should clearly represent the main theme or subject of the conversation.
+- Use emojis that enhance understanding of the topic, but avoid quotation marks or special formatting.
+- The title MUST be written in Japanese.
+- Do NOT use English under any circumstances.
+- Prioritize accuracy over excessive creativity; keep it clear and simple.
+- Your entire response must consist solely of the JSON object, without any introductory or concluding text.
+- The output must be a single, raw JSON object, without any markdown code fences or other encapsulating text.
+- Ensure no conversational text, affirmations, or explanations precede or follow the raw JSON output, as this will cause direct parsing failure.
+
+### Output:
+JSON format: { "title": "your concise title here" }
+
+### Examples:
+- { "title": "🐛 タイトル生成不具合" },
+- { "title": "🍪 チョコチップレシピ" },
+- { "title": "音楽配信の進化" },
+- { "title": "在宅勤務の生産性向上" },
+- { "title": "医療と人工知能" },
+- { "title": "🎮 ゲーム開発の知見" }
+
+### Chat History:
+<chat_history>
+{{MESSAGES:END:2}}
+</chat_history>"""
+```
+
+
+
 ------------------------------------------------------------------------

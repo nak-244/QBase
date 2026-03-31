@@ -1707,25 +1707,54 @@ TITLE_GENERATION_PROMPT_TEMPLATE = PersistentConfig(
     os.environ.get('TITLE_GENERATION_PROMPT_TEMPLATE', ''),
 )
 
+# DEFAULT_TITLE_GENERATION_PROMPT_TEMPLATE = """### Task:
+# Generate a concise, 3-5 word title with an emoji summarizing the chat history.
+# ### Guidelines:
+# - The title should clearly represent the main theme or subject of the conversation.
+# - Use emojis that enhance understanding of the topic, but avoid quotation marks or special formatting.
+# - Write the title in the chat's primary language; default to English if multilingual.
+# - Prioritize accuracy over excessive creativity; keep it clear and simple.
+# - Your entire response must consist solely of the JSON object, without any introductory or concluding text.
+# - The output must be a single, raw JSON object, without any markdown code fences or other encapsulating text.
+# - Ensure no conversational text, affirmations, or explanations precede or follow the raw JSON output, as this will cause direct parsing failure.
+# ### Output:
+# JSON format: { "title": "your concise title here" }
+# ### Examples:
+# - { "title": "📉 Stock Market Trends" },
+# - { "title": "🍪 Perfect Chocolate Chip Recipe" },
+# - { "title": "Evolution of Music Streaming" },
+# - { "title": "Remote Work Productivity Tips" },
+# - { "title": "Artificial Intelligence in Healthcare" },
+# - { "title": "🎮 Video Game Development Insights" }
+# ### Chat History:
+# <chat_history>
+# {{MESSAGES:END:2}}
+# </chat_history>"""
+
 DEFAULT_TITLE_GENERATION_PROMPT_TEMPLATE = """### Task:
-Generate a concise, 3-5 word title with an emoji summarizing the chat history.
+Generate a concise short title with an emoji summarizing the chat history.
+
 ### Guidelines:
 - The title should clearly represent the main theme or subject of the conversation.
 - Use emojis that enhance understanding of the topic, but avoid quotation marks or special formatting.
-- Write the title in the chat's primary language; default to English if multilingual.
+- The title MUST be written in Japanese.
+- Do NOT use English under any circumstances.
 - Prioritize accuracy over excessive creativity; keep it clear and simple.
 - Your entire response must consist solely of the JSON object, without any introductory or concluding text.
 - The output must be a single, raw JSON object, without any markdown code fences or other encapsulating text.
 - Ensure no conversational text, affirmations, or explanations precede or follow the raw JSON output, as this will cause direct parsing failure.
+
 ### Output:
 JSON format: { "title": "your concise title here" }
+
 ### Examples:
-- { "title": "📉 Stock Market Trends" },
-- { "title": "🍪 Perfect Chocolate Chip Recipe" },
-- { "title": "Evolution of Music Streaming" },
-- { "title": "Remote Work Productivity Tips" },
-- { "title": "Artificial Intelligence in Healthcare" },
-- { "title": "🎮 Video Game Development Insights" }
+- { "title": "🐛 タイトル生成不具合" },
+- { "title": "🍪 チョコチップレシピ" },
+- { "title": "音楽配信の進化" },
+- { "title": "在宅勤務の生産性向上" },
+- { "title": "医療と人工知能" },
+- { "title": "🎮 ゲーム開発の知見" }
+
 ### Chat History:
 <chat_history>
 {{MESSAGES:END:2}}
@@ -1855,7 +1884,7 @@ Analyze the chat history to determine the necessity of generating search queries
 - Always prioritize providing actionable and broad queries that maximize informational coverage.
 
 ### Output:
-Strictly return in JSON format: 
+Strictly return in JSON format:
 {
   "queries": ["query1", "query2"]
 }
@@ -1886,44 +1915,44 @@ AUTOCOMPLETE_GENERATION_PROMPT_TEMPLATE = PersistentConfig(
 
 
 DEFAULT_AUTOCOMPLETE_GENERATION_PROMPT_TEMPLATE = """### Task:
-You are an autocompletion system. Continue the text in `<text>` based on the **completion type** in `<type>` and the given language.  
+You are an autocompletion system. Continue the text in `<text>` based on the **completion type** in `<type>` and the given language.
 
 ### **Instructions**:
-1. Analyze `<text>` for context and meaning.  
-2. Use `<type>` to guide your output:  
-   - **General**: Provide a natural, concise continuation.  
-   - **Search Query**: Complete as if generating a realistic search query.  
-3. Start as if you are directly continuing `<text>`. Do **not** repeat, paraphrase, or respond as a model. Simply complete the text.  
+1. Analyze `<text>` for context and meaning.
+2. Use `<type>` to guide your output:
+   - **General**: Provide a natural, concise continuation.
+   - **Search Query**: Complete as if generating a realistic search query.
+3. Start as if you are directly continuing `<text>`. Do **not** repeat, paraphrase, or respond as a model. Simply complete the text.
 4. Ensure the continuation:
-   - Flows naturally from `<text>`.  
-   - Avoids repetition, overexplaining, or unrelated ideas.  
-5. If unsure, return: `{ "text": "" }`.  
+   - Flows naturally from `<text>`.
+   - Avoids repetition, overexplaining, or unrelated ideas.
+5. If unsure, return: `{ "text": "" }`.
 
 ### **Output Rules**:
 - Respond only in JSON format: `{ "text": "<your_completion>" }`.
 
 ### **Examples**:
-#### Example 1:  
-Input:  
-<type>General</type>  
-<text>The sun was setting over the horizon, painting the sky</text>  
-Output:  
+#### Example 1:
+Input:
+<type>General</type>
+<text>The sun was setting over the horizon, painting the sky</text>
+Output:
 { "text": "with vibrant shades of orange and pink." }
 
-#### Example 2:  
-Input:  
-<type>Search Query</type>  
-<text>Top-rated restaurants in</text>  
-Output:  
-{ "text": "New York City for Italian cuisine." }  
+#### Example 2:
+Input:
+<type>Search Query</type>
+<text>Top-rated restaurants in</text>
+Output:
+{ "text": "New York City for Italian cuisine." }
 
 ---
 ### Context:
 <chat_history>
 {{MESSAGES:END:6}}
 </chat_history>
-<type>{{TYPE}}</type>  
-<text>{{PROMPT}}</text>  
+<type>{{TYPE}}</type>
+<text>{{PROMPT}}</text>
 #### Output:
 """
 
@@ -1972,7 +2001,7 @@ Your task is to choose and return the correct tool(s) from the list of available
 
 - Return only the JSON object, without any additional text or explanation.
 
-- If no tools match the query, return an empty array: 
+- If no tools match the query, return an empty array:
    {
      "tool_calls": []
    }
