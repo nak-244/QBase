@@ -104,6 +104,24 @@ User=qpc
 WantedBy=multi-user.target
 ```
 ---
+## ■ WSL自動起動
+### ■ 設定内容
+| 項目        | 設定                                         |
+| --------- | ------------------------------------------ |
+| トリガー      | ログオン時                                      |
+| プログラム     | wsl                                        |
+| 引数        | -d Ubuntu --exec bash -lc "sleep infinity" |
+| 最上位の特権で実行 | 有効（推奨）                                     |
+
+### ■ コマンド内容
+```
+wsl -d Ubuntu --exec bash -lc "sleep infinity"
+```
+* WSLを常時起動
+* Systemdを維持
+* cloudfraredの自動起動を成立
+
+---
 
 ## ■ 完成状態
 
@@ -112,6 +130,7 @@ WantedBy=multi-user.target
 
 ---
 ## ■ 自動起動フロー
+```
 PC起動
 ↓
 Windowsログイン
@@ -122,16 +141,25 @@ WSL起動（常駐）
 ↓
 systemd起動
 ↓
-cloudflare自動起動
+cloudflared自動起動（systemd）
 ↓
 qbase.qbiworld.com公開
+```
 ---
+## ■ 動作仕様
+| 状態     | 結果      |
+| ------ | ------- |
+| PC起動のみ | qbase停止 |
+| ログイン後  | 自動起動    |
+| WSL停止  | qbase停止 |
 
+
+---
 ## ■ 注意点（重要）
 
 * cloudflaredは**systemdで常駐済み**
-* 手動軌道は不要
-* wslが起動していない場合はqbase停止
+* 手動起動は不要
+* WSLが起動していない場合はqbase停止
 * PC停止でqbase停止
 + Cloudflare機能（WAF等）は未使用構成
 ---
