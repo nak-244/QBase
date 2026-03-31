@@ -59,18 +59,24 @@ ingress:
 ## ■ 起動方法
 
 ```bash
-cloudflared tunnel run qbase-tunnel
+# 手動起動（不要）
+# cloudflared tunnel run qbase-tunnel
+
+# systemdで自動起動（現在）
+sudo systemctl start cloudflared
 ```
 
 ---
 
 ## ■ 動作仕様（重要）
 
-| 項目             | 状態         |
-| -------------- | ---------- |
-| cloudflared起動中 | qbase表示される |
-| cloudflared停止  | qbase停止    |
-| メインドメイン        | 影響なし       |
+| 項目                      | 状態         |
+| ----------------------- | ---------- |
+| cloudflared（systemd）稼働中 | qbase表示される |
+| cloudflared停止           | qbase停止    |
+| PC起動                    | 自動でqbase復旧 |
+| メインドメイン                 | 影響なし       |
+
 
 ---
 
@@ -80,6 +86,24 @@ cloudflared tunnel run qbase-tunnel
 * Cloudflareプロキシは使用しない
 
 ---
+##  ■ systemd設定
+```bash
+/etc/systemd/system/cloudflared.service
+
+[Unit]
+Description=Cloudflare Tunnel
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/cloudflared tunnel run qbase-tunnel
+Restart=always
+RestartSec=5
+User=qpc
+
+[Install]
+WantedBy=multi-user.target
+```
+---
 
 ## ■ 完成状態
 
@@ -87,26 +111,27 @@ cloudflared tunnel run qbase-tunnel
 * [https://qbase.qbiworld.com](https://qbase.qbiworld.com) → OK（条件付き）
 
 ---
+## ■ 自動起動フロー
+PC起動
+↓
+Windowsログイン
+↓
+タスクスケジューラ
+↓
+WSL起動（常駐）
+↓
+systemd起動
+↓
+cloudflare自動起動
+↓
+qbase.qbiworld.com公開
+---
 
 ## ■ 注意点（重要）
 
-* cloudflaredは常駐必須
+* cloudflaredは**systemdで常駐済み**
+* 手動軌道は不要
+* wslが起動していない場合はqbase停止
 * PC停止でqbase停止
-* Cloudflare機能（WAF等）は未使用構成
-
----
-
-## ■ 今後の改善候補
-
-* systemdで常駐化
-* 別サーバーに移行
-* Cloudflare完全移管
-
----
-
-# ■ 結論
-
-👉 **構成は完成済み（実運用可能）**
-👉 **次フェーズは「運用最適化」**
-
++ Cloudflare機能（WAF等）は未使用構成
 ---
