@@ -1,0 +1,68 @@
+cloudflareを活用して、http://localhost:4000の内容を、
+https://qbase.qbiworld.com/ に表示させたい。
+
+■ 今やったこと
+【wsl】
+sudo systemctl start cloudflared
+トンネルはPC起動時に自動実行済み
+
+【cloudflare】
+img01.png参照
+
+Public Hostname追加
+hostname：qbase.qbiworld.com
+service：http://localhost:4000
+
+【ドメイン：GMOクラウド】
+qbiworld.com　のゾーン情報に、
+qbase CNAME 9ceac628-dcb0-44b0-ad63-016abade9feb.cfargotunnel.com　追加
+※サブドメインの追加はしていない
+
+DNS情報は下記初期のまま。
+ns.namedserver.net
+ns2.namedserver.net
+
+※ cloudflareでは下記を言われている
+lloyd.ns.cloudflare.com
+olga.ns.cloudflare.com
+
+【nslookup qbase.qbiworld.com実行結果】
+サーバー:  UnKnown
+Address:  192.168.2.1
+
+権限のない回答:
+名前:    9ceac628-dcb0-44b0-ad63-016abade9feb.cfargotunnel.com
+Address:  fd10:aec2:5dae::
+Aliases:  qbase.qbiworld.com
+
+
+■ 現状
+https://www.qbiworld.com/
+は通常通り閲覧可能
+
+https://qbase.qbiworld.com/
+サイトが表示されない　DNS_PROBE_FINISHED_NXDOMAIN
+
+スマホ（Wi-Fi切って）でも表示されません。
+
+■ やりたいこと
+メール送受信
+https://www.qbiworld.com/
+こちらに関しては今まで通り表示・利用できる状態にし、
+
+https://qbase.qbiworld.com/
+こちらにアクセスすると、
+http://localhost:4000
+こちらを表示させたい。
+
+■ 理想
+可能であれば、GMOクラウドのDNSは
+ns.namedserver.net
+ns2.namedserver.net
+このままで、qbase.qbiworld.comだけ、cloudflare経由で実行したいのですが、
+何度となくchatGPTに聞いたやり方を進めても、無理そうなのです。
+最終的に、GMOクラウド側のDNSを
+lloyd.ns.cloudflare.com
+olga.ns.cloudflare.com
+これに変更して、メールなどの設定を間違いないように設定することしかないといわれました。
+これしかないならやりますが、できる限りDNSは変更したくないです。
