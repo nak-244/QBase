@@ -1,0 +1,30 @@
+cosmegreed.com
+A	162.43.96.26 	3600	0
+
+
+www.cosmegreed.com
+A	162.43.96.26 	3600	0
+
+
+*.cosmegreed.com
+A	162.43.96.26 	3600	0
+
+
+cosmegreed.com
+MX	cosmegreed.com 	3600	0
+
+
+cosmegreed.com
+TXT	v=spf1 +a:sv6005.wpx.ne.jp +a:cosmegreed.com +mx include:spf.sender.xserver.jp ~all 	3600	0
+
+
+cosmegreed.com
+NS	ns1.wpx.ne.jp 	3600	0
+
+
+cosmegreed.com
+NS	ns2.wpx.ne.jp 	3600	0
+
+
+cosmegreed.com
+NS	ns3.wpx.ne.jp 	3600	0
