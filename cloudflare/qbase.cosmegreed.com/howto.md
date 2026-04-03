@@ -1,288 +1,217 @@
-# ■ 全体構成（理解）
+1. 事前確認です。今回の到達点は次の構成です。
 
-まず構造を整理します。
+* `https://cosmegreed.com/` は現状維持
+* `https://qbase.cosmegreed.com/` だけを Cloudflare Tunnel 経由で `http://localhost:4000` に向ける
+* トンネル名は `qbase-tunnel-cosmeg`
 
-* localhost:4000 → Docker（QBase）
-* Cloudflare Tunnel → ローカルへ接続
-* DNS → subdomainだけCloudflareへ
+構造はこうなります。
 
-つまり👇
-
-```
+```text
 qbase.cosmegreed.com
-   ↓（DNS）
-Cloudflare
-   ↓（Tunnel）
-localhost:4000
+  ↓ DNS（Cloudflare）
+Cloudflare Tunnel
+  ↓
+http://localhost:4000
 ```
 
----
+2. Cloudflare に `cosmegreed.com` を追加します。
+   Cloudflare公式では、まずドメインを追加し、既存DNSを確認し、その後に割り当てられたネームサーバーへ変更する流れです。([Cloudflare Docs][3])
 
-# ■ STEP① Cloudflareアカウント＆ドメイン追加
+操作です。
 
-### ① Cloudflareにログイン
+* Cloudflare にログイン
+* 「Add a domain」または「Onboard a domain」
+* `cosmegreed.com` を入力
+* プランは Free で開始
 
-[https://dash.cloudflare.com/](https://dash.cloudflare.com/)
+このあと Cloudflare が既存DNSレコードをスキャンします。
 
-### ② ドメイン追加
+3. ここが最重要です。
+   Cloudflare が拾ってきたDNSを**必ず確認・補完**してください。ネームサーバーをCloudflareに切り替えると、その後は Cloudflare 側のDNS設定が正になります。つまり、**今動いているWeb用のA/CNAME、メール用のMX/TXT/SPF/DKIM/DMARCを落とすと既存運用が壊れます**。([Cloudflare Docs][1])
 
-```
-cosmegreed.com
-```
+この段階で確認すべき主なレコードは次です。
 
-### ③ プラン
+* `@` の A もしくは CNAME
+* `www` の CNAME
+* `mail` の A または CNAME
+* MX
+* TXT（SPF）
+* DKIM 用TXTまたはCNAME
+* `_dmarc` のTXT
+* 必要ならFTP等のホスト名
 
-→ FreeでOK
+判断基準です。
 
----
+* `cosmegreed.com` 本体を今のまま表示したい
+  → 既存の `@` と `www` を Cloudflare DNS にそのまま再現
+* メールを今のまま使いたい
+  → MX, SPF, DKIM, DMARC を必ず再現
+* 今回新規に追加するのは `qbase` サブドメインだけ
 
-# ■ STEP② ネームサーバー変更（重要）
+4. 次に、Cloudflare Tunnel 用の `cloudflared` を接続先マシンへ入れます。
+   Cloudflare 公式でも、ローカル管理のトンネルは `cloudflared` のインストール → 認証 → トンネル作成 → 設定ファイル作成 → ルーティング → 起動、の順です。([Cloudflare Docs][4])
 
-シンレンタルサーバーで取得しているため👇
+Ubuntu / WSL なら、最も確実なのは Cloudflare ダッシュボードまたは公式配布に出るインストール手順に従うことです。([Cloudflare Docs][5])
+画面からコピペするのが安全ですが、まずはインストール確認コマンドの形だけ示します。
 
-### 変更先（Cloudflare指定のNS）
-
-例：
-
-```
-xxxx.ns.cloudflare.com
-yyyy.ns.cloudflare.com
-```
-
-### 作業場所
-
-シンレンタルサーバー管理画面
-→ ドメイン設定
-→ ネームサーバー変更
-
----
-
-# ■ この時点の注意
-
-ここが最重要です ⚠️
-
-👉 DNSをCloudflareに移すと
-
-* Web
-* メール
-
-全部Cloudflare管理になる
-
----
-
-# ■ STEP③ DNSを復元（壊さないため）
-
-CloudflareのDNSに以下を設定
-
-### ■ 既存サイト（維持）
-
-```
-Aレコード
-@ → （今のサーバーIP）
+```bash
+cloudflared --version
 ```
 
-### ■ メール（必須）
+これで未導入なら、Cloudflare公式の Downloads 画面の Ubuntu/Debian 手順で入れてください。([Cloudflare Docs][5])
 
-シンレンタルサーバーのMXをそのまま登録
+5. `cloudflared` を Cloudflare アカウントへ認証します。
+   ローカル管理トンネルでは `cloudflared tunnel login` を実行してブラウザ認証します。([Cloudflare Docs][4])
 
-例：
-
-```
-MX
-mail.cosmegreed.com
-```
-
-※ここミスるとメール止まる
-
----
-
-# ■ STEP④ Cloudflare Tunnelインストール（サーバー側）
-
-WSL or Linuxで実行
-
-### ① cloudflared インストール
-
-```
-sudo apt update
-sudo apt install cloudflared
-```
-
----
-
-### ② ログイン
-
-```
+```bash
 cloudflared tunnel login
 ```
 
-→ ブラウザ開く
-→ cosmegreed.com選択
+これを実行するとブラウザが開きます。
+そこで Cloudflare にログインし、対象ゾーンとして `cosmegreed.com` を選択します。認証が通ると、ローカルに認証用ファイルが作られます。([Cloudflare Docs][4])
 
----
+6. トンネルを作成します。
+   トンネル名はご指定どおり `qbase-tunnel-cosmeg` にします。トンネル作成時に資格情報JSONが生成されます。([Cloudflare Docs][4])
 
-# ■ STEP⑤ トンネル作成
-
-指定通り👇
-
-```
+```bash
 cloudflared tunnel create qbase-tunnel-cosmeg
 ```
 
-作成される：
+成功すると、概ね次のような情報が出ます。
 
-```
-/home/xxx/.cloudflared/xxxxx.json
-```
+* Tunnel UUID
+* credentials file の保存先
+  例: `/home/ユーザー名/.cloudflared/<UUID>.json`
 
----
+この **UUID と JSON のパスは後で使うので控えてください**。
 
-# ■ STEP⑥ DNSに紐付け
+7. トンネル設定ファイルを作成します。
+   Cloudflare公式のローカル管理トンネルでも、`config.yml` を作って hostname と local service を結びます。([Cloudflare Docs][4])
 
-```
-cloudflared tunnel route dns qbase-tunnel-cosmeg qbase.cosmegreed.com
-```
+作成先の例です。
 
-👉 これでCNAME自動作成される
-
----
-
-# ■ STEP⑦ 設定ファイル作成
-
-```
+```bash
+mkdir -p ~/.cloudflared
 nano ~/.cloudflared/config.yml
 ```
 
-内容👇
+内容は次です。`credentials-file` だけは、実際に作成されたJSONファイル名へ置き換えてください。
 
 ```yaml
 tunnel: qbase-tunnel-cosmeg
-credentials-file: /home/xxx/.cloudflared/xxxxx.json
+credentials-file: /home/ユーザー名/.cloudflared/ここにUUID.json
 
 ingress:
   - hostname: qbase.cosmegreed.com
     service: http://localhost:4000
-    originRequest:
-      httpHostHeader: localhost
-
   - service: http_status:404
 ```
 
----
+補足です。
+今回は `localhost:4000` を公開先にしています。これは今のQBase本番コンテナのポート公開設定 `-p 4000:8080` と一致しています。
 
-# ■ STEP⑧ 起動
+8. 次に、Cloudflare 側DNSへ `qbase.cosmegreed.com` をトンネルへ紐付けます。
+   ローカル管理トンネルでは `cloudflared tunnel route dns` で公開ホスト名を作れます。([Cloudflare Docs][4])
 
+```bash
+cloudflared tunnel route dns qbase-tunnel-cosmeg qbase.cosmegreed.com
 ```
+
+これにより、Cloudflare DNS に `qbase.cosmegreed.com` 用のレコードが追加されます。
+この作業は、**ゾーン `cosmegreed.com` がすでに Cloudflare 管理になっていること**が前提です。
+
+9. トンネルを起動して動作確認します。
+   Cloudflare公式のローカル管理トンネルでも `cloudflared tunnel run` で起動します。([Cloudflare Docs][4])
+
+```bash
 cloudflared tunnel run qbase-tunnel-cosmeg
 ```
 
----
+この状態で別ブラウザから、
 
-# ■ STEP⑨ 動作確認
-
-```
+```text
 https://qbase.cosmegreed.com
 ```
 
-表示されれば成功
+へアクセスします。
 
----
+ここで表示されれば、トンネル自体は成功です。
 
-# ■ STEP⑩ 常駐化（必須）
+10. 常駐化します。
+    検証中は手動起動でもよいですが、実運用では `cloudflared` をサービス化した方が安定します。Cloudflare は常駐運用を前提に案内しています。([Cloudflare Docs][6])
 
-```
-sudo cloudflared service install
-sudo systemctl start cloudflared
-```
+環境によって実装は少し違いますが、一般には次のどちらかです。
 
----
+* Cloudflare が案内する service install 手順を使う
+* systemd ユニットを自前で作る
 
-# ■ よくある失敗（重要）
+まずは簡易に試すなら、起動確認後に service install 系の案内に沿って常駐化してください。Cloudflare のトンネル管理画面でも該当コマンドが提示されることがあります。([Cloudflare Docs][5])
 
-### ❌ ① localhostにバインドしている
+11. ここで、ネームサーバー変更をまだしていない場合の作業です。
+    Cloudflare でドメイン追加後、Cloudflare から **割り当てられた2つのネームサーバー** が表示されます。Cloudflareのフルセットアップでは、その2つへドメイン登録側を変更します。([Cloudflare Docs][1])
 
-→ WSLの場合
+シンレンタルサーバー側では、公式マニュアルどおりドメインのネームサーバー設定画面から変更します。([shin-server.jp][2])
 
-```
-OLLAMA_HOST=0.0.0.0
-```
+流れです。
 
-### ❌ ② Dockerが外から見えない
+* シンアカウントへログイン
+* 対象ドメイン `cosmegreed.com` を選択
+* ネームサーバー設定を開く
+* Cloudflare から指定された2つのNSへ変更
+* 保存
 
-→ これはOK（Tunnelだから問題なし）
+変更後、反映待ちになります。
 
----
+12. 反映確認です。
+    Cloudflare公式でも、ネームサーバー変更後は Cloudflare 側でアクティブになるまで待ち、確認する流れです。([Cloudflare Docs][1])
 
-# ■ STEP⑪ 本番への展開（qbiworld）
+反映後に確認するものはこの3つです。
 
-そのまま横展開します。
+* `https://cosmegreed.com/` が従来どおり表示されるか
+* 既存メールの送受信が正常か
+* `https://qbase.cosmegreed.com/` が QBase を表示するか
 
-### トンネル
+ここで `cosmegreed.com` 本体かメールが壊れた場合は、Cloudflare DNS に既存レコードの不足・誤りがあります。Tunnel の問題ではなく、**ゾーン移行時のDNS再現ミス**です。
 
-```
-qbase-tunnel
-```
+13. 本番 `qbase.qbiworld.com` への展開前提です。
+    今回の検証が通れば、本番は同じ設計でできます。違うのは次の2点だけです。
 
-### コマンド
+* ドメインが `qbiworld.com`
+* トンネル名が `qbase-tunnel`
 
-```
+つまり本番側は、概念的には次の差し替えです。
+
+```bash
 cloudflared tunnel create qbase-tunnel
 cloudflared tunnel route dns qbase-tunnel qbase.qbiworld.com
 ```
 
-### config.yml
+`config.yml` はこうなります。
 
 ```yaml
-- hostname: qbase.qbiworld.com
-  service: http://localhost:4000
+tunnel: qbase-tunnel
+credentials-file: /home/ユーザー名/.cloudflared/本番UUID.json
+
+ingress:
+  - hostname: qbase.qbiworld.com
+    service: http://localhost:4000
+  - service: http_status:404
 ```
 
----
+14. 実務上の注意です。
+    今回のやり方は適切ですが、前回つまずいた本質は「Cloudflare Tunnelが難しい」のではなく、**既存ドメインをCloudflare管理へ移す際のDNS再現を甘く見ると事故る**という点です。
+    Tunnel 自体はシンプルです。難所は DNS とメールです。そこだけ丁寧にやれば問題ありません。⚠️
 
-# ■ 設計としての評価
+ここまでを、実際の作業単位でさらに細かく区切ると次の順です。
 
-この構成はかなり良いです。
-
-理由👇
-
-* ポート公開不要（セキュア）
-* サーバーIP非公開
-* Cloudflare WAF使える
-* 証明書自動
-
----
-
-# ■ 注意（本質的なリスク）
-
-一点だけ正直に言います。
-
-👉 DNSをCloudflareに寄せる以上
-**メール設定を間違えると即死**
-
----
-
-# ■ 補足（運用設計）
-
-今のあなたの環境なら👇
-
-* dev → localhost:4001
-* prod → localhost:4000
-
-なので将来的に👇
-
-```
-dev.qbase.xxx.com → 4001
-qbase.xxx.com     → 4000
-```
-
-これも1トンネルで可能
-
----
-
-# ■ 結論
-
-* Cloudflare Tunnelで完全に実現可能
-* DNS移行は必須（subdomainだけでは不可）
-* メール設定の復元が最重要ポイント
-* 構成としては本番運用レベルで問題なし
-
----
+* まず Cloudflare に `cosmegreed.com` を追加
+* Cloudflare が拾った DNS を全部確認
+* 既存Webとメールのレコードを補完
+* `cloudflared` を導入
+* `cloudflared tunnel login`
+* `cloudflared tunnel create qbase-tunnel-cosmeg`
+* `config.yml` 作成
+* `cloudflared tunnel route dns ...`
+* ネームサーバーをシンレンタルサーバーで Cloudflare に変更
+* 動作確認
+* 常駐化
