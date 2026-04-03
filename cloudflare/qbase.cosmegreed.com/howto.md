@@ -1,169 +1,129 @@
-結論から言うと、その構成は**Cloudflare Tunnelで問題なく実現できます**。
-かつ、**メールや既存サイトを壊さずに subdomain だけ切り出す構成**も可能です 👍
-
-以下は「検証用（cosmegreed）」→「本番（qbiworld）」へそのまま横展開できる設計で書いています。
+# ■ Cloudflare Tunnel構築 手順書（完全版）
 
 ---
 
-# ■ 全体構成（理解）
+# ■ 1. 目的
 
-まず構造を整理します。
+ローカル環境で稼働するQBase（OpenWebUI）を、外部からHTTPSでアクセス可能にする。
 
-* localhost:4000 → Docker（QBase）
-* Cloudflare Tunnel → ローカルへ接続
-* DNS → subdomainだけCloudflareへ
+---
 
-つまり👇
+# ■ 2. システム構成
 
-```
-qbase.cosmegreed.com
-   ↓（DNS）
-Cloudflare
-   ↓（Tunnel）
-localhost:4000
+```text
+ユーザー（ブラウザ）
+↓
+Cloudflare（DNS + HTTPS）
+↓
+Cloudflare Tunnel
+↓
+ローカルサーバー（localhost:4000）
 ```
 
 ---
 
-# ■ STEP① Cloudflareアカウント＆ドメイン追加
+# ■ 3. 前提条件
 
-### ① Cloudflareにログイン
+* DockerでQBaseが起動している
 
-[https://dash.cloudflare.com/](https://dash.cloudflare.com/)
+  ```bash
+  http://localhost:4000
+  ```
 
-### ② ドメイン追加
 
-```
-cosmegreed.com
-```
 
-### ③ プラン
-
-→ FreeでOK
+* ドメイン取得済み（例：cosmegreed.com）
 
 ---
 
-# ■ STEP② ネームサーバー変更（重要）
+# ■ 4. DNS設定（Cloudflare）
 
-シンレンタルサーバーで取得しているため👇
+## ■ 4-1 ドメイン追加
 
-### 変更先（Cloudflare指定のNS）
-
-例：
-
-```
-xxxx.ns.cloudflare.com
-yyyy.ns.cloudflare.com
-```
-
-### 作業場所
-
-シンレンタルサーバー管理画面
-→ ドメイン設定
-→ ネームサーバー変更
+Cloudflareにドメインを追加
 
 ---
 
-# ■ この時点の注意
+## ■ 4-2 ネームサーバー変更
 
-ここが最重要です ⚠️
-
-👉 DNSをCloudflareに移すと
-
-* Web
-* メール
-
-全部Cloudflare管理になる
+シンレンタル側でCloudflare指定NSに変更
 
 ---
 
-# ■ STEP③ DNSを復元（壊さないため）
+## ■ 4-3 DNSレコード設定
 
-CloudflareのDNSに以下を設定
-
-### ■ 既存サイト（維持）
-
-```
-Aレコード
-@ → （今のサーバーIP）
-```
-
-### ■ メール（必須）
-
-シンレンタルサーバーのMXをそのまま登録
-
-例：
-
-```
-MX
-mail.cosmegreed.com
-```
-
-※ここミスるとメール止まる
+| 種別  | 名前  | 値                | 備考  |
+| --- | --- | ---------------- | --- |
+| A   | @   | 162.43.96.26     | 本体  |
+| A   | www | 162.43.96.26     |     |
+| A   | *   | 162.43.96.26     |     |
+| MX  | @   | sv6005.wpx.ne.jp | メール |
+| TXT | @   | SPF設定            |     |
 
 ---
 
-# ■ STEP④ Cloudflare Tunnelインストール（サーバー側）
+## ■ 4-4 注意点
 
-WSL or Linuxで実行
+* MXを誤るとメール停止
+* NS変更後は反映待ち（最大24h）
 
-### ① cloudflared インストール
+---
 
-```
+# ■ 5. Cloudflare Tunnel構築
+
+---
+
+## ■ 5-1 cloudflaredインストール
+
+```bash
 sudo apt update
 sudo apt install cloudflared
 ```
 
 ---
 
-### ② ログイン
+## ■ 5-2 認証
 
-```
+```bash
 cloudflared tunnel login
 ```
 
-→ ブラウザ開く
-→ cosmegreed.com選択
+※既にcert.pemがある場合はスキップ
 
 ---
 
-# ■ STEP⑤ トンネル作成
+## ■ 5-3 トンネル作成
 
-指定通り👇
-
-```
+```bash
 cloudflared tunnel create qbase-tunnel-cosmeg
 ```
 
-作成される：
+---
 
-```
-/home/xxx/.cloudflared/xxxxx.json
+## ■ 生成ファイル
+
+```text
+/home/qpc/.cloudflared/
+  ├ cert.pem
+  ├ config.yml
+  └ c4990ee2-xxxx.json
 ```
 
 ---
 
-# ■ STEP⑥ DNSに紐付け
+## ■ 5-4 DNS紐付け
 
-```
+```bash
 cloudflared tunnel route dns qbase-tunnel-cosmeg qbase.cosmegreed.com
 ```
 
-👉 これでCNAME自動作成される
-
 ---
 
-# ■ STEP⑦ 設定ファイル作成
-
-```
-nano ~/.cloudflared/config.yml
-```
-
-内容👇
+# ■ 6. config.yml（詳細解説）
 
 ```yaml
 tunnel: qbase-tunnel-cosmeg
-credentials-file: /home/xxx/.cloudflared/xxxxx.json
+credentials-file: /etc/cloudflared/c4990ee2-5afd-4b5c-83c5-b455707e880a.json
 
 ingress:
   - hostname: qbase.cosmegreed.com
@@ -176,123 +136,219 @@ ingress:
 
 ---
 
-# ■ STEP⑧ 起動
+## ■ 各項目の意味（重要）
 
+### ■ tunnel
+
+```yaml
+tunnel: qbase-tunnel-cosmeg
 ```
-cloudflared tunnel run qbase-tunnel-cosmeg
+
+→ Cloudflare側で作成したトンネル名
+
+---
+
+### ■ credentials-file
+
+```yaml
+credentials-file: /etc/cloudflared/xxxx.json
+```
+
+→ 認証ファイル（トンネル固有）
+
+※サービス化時は必ず `/etc/cloudflared` に置く
+
+---
+
+### ■ ingress（ルーティング設定）
+
+---
+
+### ■ hostname
+
+```yaml
+hostname: qbase.cosmegreed.com
+```
+
+→ このドメインでアクセスされた場合
+
+---
+
+### ■ service
+
+```yaml
+service: http://localhost:4000
+```
+
+→ ローカルの転送先
+
+---
+
+### ■ originRequest
+
+```yaml
+httpHostHeader: localhost
+```
+
+→ Hostヘッダをlocalhostとして送る
+
+※OpenWebUIなどで重要
+
+---
+
+### ■ fallback
+
+```yaml
+- service: http_status:404
+```
+
+→ 該当しないアクセスは404
+
+---
+
+# ■ 7. サービス化（本番運用）
+
+---
+
+## ■ 7-1 ディレクトリ作成
+
+```bash
+sudo mkdir -p /etc/cloudflared
 ```
 
 ---
 
-# ■ STEP⑨ 動作確認
+## ■ 7-2 ファイルコピー
 
+```bash
+sudo cp ~/.cloudflared/config.yml /etc/cloudflared/
+sudo cp ~/.cloudflared/*.json /etc/cloudflared/
 ```
-https://qbase.cosmegreed.com
-```
-
-表示されれば成功
 
 ---
 
-# ■ STEP⑩ 常駐化（必須）
+## ■ 7-3 config修正
 
+```bash
+sudo nano /etc/cloudflared/config.yml
 ```
+
+---
+
+### ■ 修正内容
+
+```yaml
+credentials-file: /etc/cloudflared/xxxx.json
+```
+
+---
+
+## ■ 7-4 サービス登録
+
+```bash
 sudo cloudflared service install
+```
+
+---
+
+## ■ 7-5 起動
+
+```bash
 sudo systemctl start cloudflared
 ```
 
 ---
 
-# ■ よくある失敗（重要）
+## ■ 7-6 状態確認
 
-### ❌ ① localhostにバインドしている
-
-→ WSLの場合
-
-```
-OLLAMA_HOST=0.0.0.0
-```
-
-### ❌ ② Dockerが外から見えない
-
-→ これはOK（Tunnelだから問題なし）
-
----
-
-# ■ STEP⑪ 本番への展開（qbiworld）
-
-そのまま横展開します。
-
-### トンネル
-
-```
-qbase-tunnel
-```
-
-### コマンド
-
-```
-cloudflared tunnel create qbase-tunnel
-cloudflared tunnel route dns qbase-tunnel qbase.qbiworld.com
-```
-
-### config.yml
-
-```yaml
-- hostname: qbase.qbiworld.com
-  service: http://localhost:4000
+```bash
+systemctl status cloudflared
 ```
 
 ---
 
-# ■ 設計としての評価
-
-この構成はかなり良いです。
-
-理由👇
-
-* ポート公開不要（セキュア）
-* サーバーIP非公開
-* Cloudflare WAF使える
-* 証明書自動
+# ■ 8. 動作確認
 
 ---
 
-# ■ 注意（本質的なリスク）
+## ■ 8-1 ローカル
 
-一点だけ正直に言います。
-
-👉 DNSをCloudflareに寄せる以上
-**メール設定を間違えると即死**
+```bash
+curl http://localhost:4000
+```
 
 ---
 
-# ■ 補足（運用設計）
+## ■ 8-2 DNS
 
-今のあなたの環境なら👇
-
-* dev → localhost:4001
-* prod → localhost:4000
-
-なので将来的に👇
-
-```
-dev.qbase.xxx.com → 4001
-qbase.xxx.com     → 4000
+```bash
+nslookup -type=ns cosmegreed.com
 ```
 
-これも1トンネルで可能
+---
+
+## ■ 8-3 サブドメイン
+
+```bash
+nslookup qbase.cosmegreed.com
+```
+
+---
+
+## ■ 8-4 外部アクセス
+
+```bash
+https://qbase.cosmegreed.com
+```
+
+---
+
+# ■ 9. トラブル対応
+
+---
+
+## ■ 9-1 Tunnel起動してない
+
+```bash
+sudo systemctl restart cloudflared
+```
+
+---
+
+## ■ 9-2 DNS未反映
+
+→ 時間待ち
+
+---
+
+## ■ 9-3 localhost死んでる
+
+→ Docker再起動
+
+---
+
+# ■ 10. 本番展開（次ステップ）
+
+同手順で以下に展開可能
+
+```text
+qbase.qbiworld.com
+```
+
+---
+
+# ■ 最終構成
+
+```text
+Cloudflare → Tunnel → localhost:4000（QBase）
+```
 
 ---
 
 # ■ 結論
 
-* Cloudflare Tunnelで完全に実現可能
-* DNS移行は必須（subdomainだけでは不可）
-* メール設定の復元が最重要ポイント
-* 構成としては本番運用レベルで問題なし
+👉 この構成で外部公開・常時稼働が成立
+👉 config.ymlが中核（ルーティング定義）
+👉 この手順はそのまま横展開可能
 
 ---
-
-必要であれば、
-「DNS設定を具体的にどう書けばいいか（シンレンタル用）」も詰めて説明できます。
