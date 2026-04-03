@@ -109,7 +109,7 @@ Cloudflare ダッシュボード側でトンネルを作る場合の流れは次
 4. コネクタ種別は `Cloudflared`
 5. トンネル名を付ける
    例: `qbase-tunnel`
-
+➡qbase-tunnel-cosmegreed
 Cloudflare 公式でも、トンネル作成はこの画面経由で案内されています。([Cloudflare Docs][5])
 
 ---
