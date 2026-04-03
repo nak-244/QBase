@@ -1,0 +1,19 @@
+cloudflareを活用して、http://localhost:4000の内容を、
+https://qbase.cosmegreed.com/ に表示させたい。
+
+■ qbase.cosmegreed.com ドメインについて
+cosmegreed.com　は、シンレンタルサーバーで取得。
+qbase.cosmegreed.com　は、シンレンタルサーバーでサブドメイン登録済み。
+➡不要であれば削除します。
+
+■ サイトの状態について
+https://cosmegreed.com/
+こちらは別のサイトが表示されているので、メールアドレスやサイト表示は現状通り。
+
+https://qbase.cosmegreed.com/
+こちらにhttp://localhost:4000の内容を表示。
+
+別のドメインで挑戦した際、シンレンタルサーバーのDNS設定を変更しないで対応することが難しかったため、
+シンレンタルサーバーのDNS変更しても構わない。
+
+cloudflareの設定のところから、手順をわかりやすく教えてほしい。
