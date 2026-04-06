@@ -1,0 +1,28 @@
+ホスト名　タイプ　設定値(MX/SRV:優先度・設定値)
+@　A　153.122.205.41
+
+@　MX　100　mx　
+
+@　NS　ns.namedserver.net.
+
+@　NS　ns2.namedserver.net.
+
+@　TXT　v=spf1 include:_spf.shared-server.net ~all
+
+ftp　A　153.122.206.91
+
+imap　A　153.122.206.92
+
+ksr._domainkey.qbiworld.com　TXT　k=rsa; t=s; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHSkTnrXRpjiSZiMnxGOR2lBHT11fofQVneB2iP4CHwv+GsBlVsWAECA5MZqO8d58AsldBRwM8ZANDXwiAKJyTOF9xQ8/V48Nu7hKTbae2ZGQNHezQKHnG6QbgUl1aBuJ0y3o41zvzwdYU1Ntz42a7iiKUnp2yc4YUE8qUOCKrxQIDAQAB
+
+mx　A　153.122.206.94
+
+pop　A　153.122.206.93
+
+sansanksrwsl.qbiworld.com　MX　100　mx.sendgrid.net.
+
+sansanksrwsl.qbiworld.com　TXT　v=spf1 include:sendgrid.net ~all
+
+smtp　A　153.122.206.93
+
+www　A　153.122.205.41
