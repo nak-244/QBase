@@ -45,11 +45,11 @@ cd /mnt/d/QBase/_build/source/open-webui-source-v0.8.12-dev
 
 ビルド：
 ```
-docker buildx build --load -t qbase-dev:v0.8.12 .
+docker buildx build --load -t qbase-dev:v0.8.12.1 .
 ```
 エラー発生時は--no-cacheをつける。
 ```
-docker buildx build --no-cache --load -t qbase-dev:v0.8.12 .
+docker buildx build --no-cache --load -t qbase-dev:v0.8.12.1 .
 ```
 
 開発環境起動：
@@ -73,7 +73,7 @@ docker run -d \
   -e TZ=Asia/Tokyo \
   -v open-webui-dev:/app/backend/data \
   --name open-webui-dev \
-  qbase-dev:v0.8.12
+  qbase-dev:v0.8.12.1
 ```
 
 
