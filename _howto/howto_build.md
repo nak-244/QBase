@@ -67,7 +67,7 @@ docker run -d \
   -e WEBUI_DISABLE_VERSION_CHECK=true \
   -e ENABLE_OLLAMA_EMBEDDINGS=true \
   -e EMBEDDING_ENGINE=ollama \
-  -e EMBEDDING_MODEL=mxbai-embed-large:latest \
+  -e EMBEDDING_MODEL=mxbai-embed-large \
   -e USE_EMBEDDING_MODEL_DOCKER="" \
   -e RAG_EMBEDDING_MODEL="" \
   -e TZ=Asia/Tokyo \
