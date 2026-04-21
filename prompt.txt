@@ -1,0 +1,27 @@
+以下に、指定された要件を満たすVBAコードを記載します。
+
+```vba
+Sub LoopThroughAColumn()
+    Dim ws As Worksheet
+    Set ws = ActiveSheet
+
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+
+    Dim i As Long
+    For i = 1 To lastRow
+        If Not IsEmpty(ws.Cells(i, "A").Value) Then
+            Debug.Print ws.Cells(i, "A").Value
+        End If
+    Next i
+End Sub
+```
+
+このコードの動作説明：
+
+1. `ActiveSheet`を変数`ws`にセットします。
+2. 最終行を取得するために、`Cells(ws.Rows.Count, "A").End(xlUp).Row`を使用して、A列の最終行番号を`lastRow`に格納します。
+3. ループを開始し、1行目から最後の行まで繰り返します。
+4. `IsEmpty`関数でセルが空かどうかチェックします。空でない場合のみ、値を`Debug.Print`を使用して即時ウィンドウに出力します。
+
+このコードを実行すると、A列の全ての非空白セルの値が即時ウィンドウに表示されます。
