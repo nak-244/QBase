@@ -828,30 +828,6 @@
 								</div>
 								<div class=" self-center">{$i18n.t('Account')}</div>
 							</button>
-						{:else if tabId === 'about'}
-							<button
-								role="tab"
-								aria-controls="tab-about"
-								aria-selected={selectedTab === 'about'}
-								class={`px-0.5 md:px-2.5 py-1 min-w-fit rounded-xl flex-1 md:flex-none flex text-left transition
-								${
-									selectedTab === 'about'
-										? ($settings?.highContrastMode ?? false)
-											? 'dark:bg-gray-800 bg-gray-200'
-											: ''
-										: ($settings?.highContrastMode ?? false)
-											? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-											: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'
-								}`}
-								on:click={() => {
-									selectedTab = 'about';
-								}}
-							>
-								<div class=" self-center mr-2">
-									<InfoCircle strokeWidth="2" />
-								</div>
-								<div class=" self-center">{$i18n.t('About')}</div>
-							</button>
 						{/if}
 					{/each}
 				{:else}
@@ -934,8 +910,6 @@
 							toast.success($i18n.t('Settings saved successfully!'));
 						}}
 					/>
-				{:else if selectedTab === 'about'}
-					<About />
 				{/if}
 			</div>
 		</div>
