@@ -1,16 +1,16 @@
 # 本番用
 本番用ソースへ移動：
 ```
-cd /mnt/d/QBase/_build/source/open-webui-source-v0.8.12-prod
+cd /mnt/d/QBase/_build/source/open-webui-source-v0.9.1-prod
 ```
 
 ビルド：
 ```
-docker buildx build --load -t qbase-prod:v0.8.12 .
+docker buildx build --load -t qbase-prod:v0.9.1 .
 ```
 エラー発生時は--no-cacheをつける。
 ```
-docker buildx build --no-cache --load -t qbase-prod:v0.8.12 .
+docker buildx build --no-cache --load -t qbase-prod:v0.9.1 .
 ```
 
 公開環境起動：
@@ -34,7 +34,7 @@ docker run -d \
   -e TZ=Asia/Tokyo \
   -v open-webui:/app/backend/data \
   --name open-webui \
-  qbase-prod:v0.8.12
+  qbase-prod:v0.9.1
 ```
 
 # 開発用
