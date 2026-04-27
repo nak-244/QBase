@@ -1,33 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
+
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/png" href="/static/favicon.png" crossorigin="use-credentials" />
-		<link
-			rel="icon"
-			type="image/png"
-			href="/static/favicon-96x96.png"
-			sizes="96x96"
-			crossorigin="use-credentials"
-		/>
-		<link
-			rel="icon"
-			type="image/svg+xml"
-			href="/static/favicon.svg"
-			crossorigin="use-credentials"
-		/>
+		<link rel="icon" type="image/png" href="/static/favicon-96x96.png" sizes="96x96" crossorigin="use-credentials" />
+		<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" crossorigin="use-credentials" />
 		<link rel="shortcut icon" href="/static/favicon.ico" crossorigin="use-credentials" />
-		<link
-			rel="apple-touch-icon"
-			sizes="180x180"
-			href="/static/apple-touch-icon.png"
-			crossorigin="use-credentials"
-		/>
+		<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" crossorigin="use-credentials" />
 		<link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
-		/>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
 		<meta name="theme-color" content="#171717" />
 		<meta name="robots" content="noindex,nofollow" />
 
@@ -115,7 +97,7 @@
 			})();
 		</script>
 
-		<title>Open WebUI</title>
+		<title>QBase（開発中）</title>
 
 		%sveltekit.head%
 	</head>
@@ -123,18 +105,14 @@
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">%sveltekit.body%</div>
 
-		<div
-			id="splash-screen"
-			style="position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%"
-		>
+		<div id="splash-screen" style="position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%">
 			<style type="text/css" nonce="">
 				html {
 					overflow-y: scroll !important;
 				}
 			</style>
 
-			<div
-				style="
+			<div style="
 					position: absolute;
 					top: 33%;
 					left: 50%;
@@ -145,41 +123,26 @@
 					display: flex;
 					flex-direction: column;
 					align-items: center;
-				"
-			>
-				<img
-					id="logo-her"
-					style="width: auto; height: 13rem"
-					src="/static/splash.png"
-					loading="eager"
-					fetchpriority="high"
-					class="animate-pulse-fast"
-				/>
+				">
+				<img id="logo-her" style="width: auto; height: 13rem" src="/static/splash.png" loading="eager" fetchpriority="high" class="animate-pulse-fast" />
 
 				<div style="position: relative; width: 24rem; margin-top: 0.5rem">
-					<div
-						id="progress-background"
-						style="
+					<div id="progress-background" style="
 							position: absolute;
 							width: 100%;
 							height: 0.75rem;
 
 							border-radius: 9999px;
 							background-color: #fafafa9a;
-						"
-					></div>
+						"></div>
 
-					<div
-						id="progress-bar"
-						style="
+					<div id="progress-bar" style="
 							position: absolute;
 							width: 0%;
 							height: 0.75rem;
 							border-radius: 9999px;
 							background-color: #fff;
-						"
-						class="bg-white"
-					></div>
+						" class="bg-white"></div>
 				</div>
 			</div>
 
@@ -256,4 +219,5 @@
 			animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 		}
 	</style>
+
 </html>
