@@ -87,7 +87,7 @@ sample.xlsx
 
 # 5. 推奨ディレクトリ構成
 ```text
-C:\Users\svc-admin\Desktop\Python\RAG\01過去処方
+D:\共有フォルダ\SCAN\TOOL\19_AI_RAG
 ├─ source_mirror\   ← 共有フォルダ複製
 ├─ converted\       ← xlsx変換後
 ├─ logs\            ← ログ
