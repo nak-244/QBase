@@ -131,3 +131,7 @@ C:\Users\svc-admin\Desktop\Python\RAG\01過去処方
 * xls → xlsx変換
 * 差分同期
 のみを安定運用し、RAG化のための基盤を整備する。
+
+
+# Pythonコード保存場所
+`C:\Users\nakam\Documents\GitHub\QPython\19_AI_RAG`
