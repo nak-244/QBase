@@ -68,6 +68,8 @@ docker run -d \
   -e ENABLE_OLLAMA_EMBEDDINGS=true \
   -e EMBEDDING_ENGINE=ollama \
   -e EMBEDDING_MODEL=mxbai-embed-large \
+  -e RAG_TOP_K=10 \
+  -e RAG_RELEVANCE_THRESHOLD=0 \
   -e USE_EMBEDDING_MODEL_DOCKER="" \
   -e RAG_EMBEDDING_MODEL="" \
   -e TZ=Asia/Tokyo \
