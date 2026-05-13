@@ -1,0 +1,120 @@
+以下の化粧品OEM試作概要書Markdownを解析し、
+指定Schemaに従って構造化JSONを生成してください。
+
+# 要件
+
+* valid JSONのみ出力
+* markdown禁止
+* コードブロック禁止
+* コメント禁止
+* trailing comma禁止
+* 不明項目は null
+* 原文に存在しない内容を推測追加しない
+* 薬機法的な断定表現は禁止
+* 「営業向け要約」はOEM営業で使う自然な範囲の表現に限定
+* 成分分類は事前定義ルールに従う
+* 類義語展開は既定辞書に基づく
+* Embedding用テキストは検索重要語のみを半角スペース区切りで出力
+* 原文はMarkdown全文を格納
+
+# 複数試作No対応ルール
+
+* Markdown内に複数の「試作No.」が存在する場合、
+  試作Noごとに独立したJSONを生成すること
+* 試作Noごとに情報を分離し、混在させないこと
+* 出力形式は JSON Array とし、
+  1試作No = 1 JSON Object とする
+* 各Objectには必ず対応する試作Noを格納すること
+* 「原文」には、その試作Noに該当する範囲のみを格納すること
+* 他試作Noの説明文・成分・フリー項目を混在させないこと
+
+# 試作No分割ルール
+
+* 「試作No.」行を新しいドキュメント開始位置として扱う
+* 次の「試作No.」が出現するまでを同一試作データとみなす
+* 同一試作No内の情報のみを使用する
+
+# 出力形式
+
+* JSONのみを返してください
+
+* 単一試作Noの場合:
+  { ... }
+
+* 複数試作Noの場合:
+  [
+  { ... },
+  { ... }
+  ]
+
+# JSON Schema
+
+{
+"type": "object",
+"required": [
+"ドキュメント種別",
+"試作No",
+"製品名",
+"カテゴリ",
+"コンセプト",
+"検索タグ",
+"処方特徴",
+"主要成分",
+"Embedding用テキスト",
+"原文"
+],
+"properties": {
+"ドキュメント種別": {
+"type": "string"
+},
+"試作No": {
+"type": "string"
+},
+"製品名": {
+"type": "string"
+},
+"カテゴリ": {
+"type": "object",
+"properties": {
+"大分類": { "type": "string" },
+"小分類": { "type": ["string", "null"] }
+}
+},
+"コンセプト": {
+"type": "object",
+"properties": {
+"概要": { "type": "string" },
+"営業向け要約": { "type": "string" },
+"ポジショニング": {
+"type": "array",
+"items": { "type": "string" }
+}
+}
+},
+"検索タグ": {
+"type": "object"
+},
+"処方特徴": {
+"type": "array",
+"items": { "type": "string" }
+},
+"フリー処方": {
+"type": "array",
+"items": { "type": "string" }
+},
+"主要成分": {
+"type": "object"
+},
+"Embedding用テキスト": {
+"type": "string"
+},
+"原文": {
+"type": "string"
+}
+}
+}
+
+
+# 解析対象Markdown
+
+（ここにmd全文貼り付け）
