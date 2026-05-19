@@ -1,0 +1,10 @@
+Markdown Header Splitter OFFに。
+
+/search プロンプトに下記追加。
+「発酵」
+→
+* 発酵
+* 発酵液
+* 醗酵
+* 乳酸桿菌
+* 発酵エキス
